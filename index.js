@@ -10,26 +10,16 @@ const util = require("util");
 const mkdir = util.promisify(fs.mkdir);
 const open = util.promisify(fs.open);
 const write = util.promisify(fs.write);
-const remove = util.promisify(fs.rmdirSync);
-const emptyDir = util.promisify(fsExtra.emptyDirSync);
-const { writeAction, writeComponent, writeReducer } = require("./lib/helpers");
+
+const {
+  writeAction,
+  writeComponent,
+  writeReducer,
+  createFolder,
+} = require("./lib/helpers");
 clear();
 ui.title();
 
-const createFolder = async (foldr, path) => {
-  const foldrConfirm = await inq.confirmFolderPrompt(foldr);
-  if (!foldrConfirm.folder_creation) {
-    console.log(`Exiting Process: Without ${foldr} cli can not be proceeded`);
-    process.exit();
-  }
-  try {
-    fs.mkdirSync(path);
-  } catch (error) {
-    console.log(`Error creating a ${path} folder`, error.message);
-    console.log("Exiting Process");
-    process.exit();
-  }
-};
 const run = async () => {
   const componentsPath = "./src/components";
   const storePath = "./src/store";
@@ -42,18 +32,6 @@ const run = async () => {
   // check if src folder exists
   // --------------------------------------------------
   if (!src) {
-    // const srcConfirm = await inq.confirmFolderPrompt("src");
-    // if (!srcConfirm.folder_creation) {
-    //   console.log("Exiting Process: Without src cli can not be proceeded");
-    //   process.exit();
-    // }
-    // try {
-    //   fs.mkdirSync("./src");
-    // } catch (error) {
-    //   console.log("Error creating a src folder", error.message);
-    //   console.log("Exiting Process");
-    //   process.exit();
-    // }
     await createFolder("src", "./src");
   }
 
@@ -61,37 +39,13 @@ const run = async () => {
   // check if components folder exists
   // --------------------------------------------------
   if (!components) {
-    const componentsConfirm = await inq.confirmFolderPrompt(componentsPath);
-    if (!componentsConfirm.folder_creation) {
-      console.log(
-        "Exiting Process: Without components cli can not be proceeded"
-      );
-      process.exit();
-    }
-    try {
-      await mkdir(`${componentsPath}`);
-    } catch (error) {
-      console.log("Error creating a components folder", error.message);
-      console.log("Exiting Process");
-      process.exit();
-    }
+    await createFolder("components", componentsPath);
   }
   // --------------------------------------------------
   // check if store folder exists
   // --------------------------------------------------
   if (!store) {
-    const storeConfirm = await inq.confirmFolderPrompt(storePath);
-    if (!storeConfirm.folder_creation) {
-      console.log("Exiting Process: Without store cli can not be proceeded");
-      process.exit();
-    }
-    try {
-      await mkdir(`${storePath}`);
-    } catch (error) {
-      console.log("Error creating a store folder", error.message);
-      console.log("Exiting Process");
-      process.exit();
-    }
+    await createFolder("store", storePath);
   }
   const component = await inq.createComponentPrompt();
   const componentNameTemp = component.folder_name;
